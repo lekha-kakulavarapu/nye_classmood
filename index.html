@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYE Class: The Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            transition: background 2s ease;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Dynamic background based on mood phase */
+        body.phase-1 { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+        body.phase-2 { background: linear-gradient(135deg, #2a5298 0%, #4a536b 100%); }
+        body.phase-3 { background: linear-gradient(135deg, #4a536b 0%, #7b2cbf 100%); }
+        body.phase-4 { background: linear-gradient(135deg, #7b2cbf 0%, #ff006e 100%); }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            animation: fadeIn 1s ease;
+        }
+
+        h1 {
+            font-size: 3em;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        /* Main Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            color: white;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* MANUAL TIME CONTROL */
+        .time-control {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .time-display {
+            font-size: 3em;
+            color: #ffeb3b;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 0 0 30px rgba(255,235,59,0.8);
+            margin-bottom: 10px;
+        }
+
+        .time-label {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .time-slider {
+            width: 100%;
+            height: 20px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #1e3c72, #7b2cbf, #ff006e);
+            outline: none;
+            -webkit-appearance: none;
+            margin-bottom: 15px;
+        }
+
+        .time-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #ffeb3b;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 235, 59, 1);
+            border: 3px solid white;
+        }
+
+        .time-slider::-moz-range-thumb {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #ffeb3b;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 235, 59, 1);
+            border: 3px solid white;
+        }
+
+        .time-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .time-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .time-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .phase-indicator {
+            text-align: center;
+            color: #ffeb3b;
+            font-size: 1.3em;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* Attention Meter */
+        .attention-meter {
+            position: relative;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: help;
+        }
+
+        .attention-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            border-radius: 20px;
+            transition: width 1s ease, background 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .attention-fill.low {
+            background: linear-gradient(90deg, #ff9800, #ff5722);
+        }
+
+        .attention-fill.critical {
+            background: linear-gradient(90deg, #f44336, #e91e63);
+            animation: pulse 1s infinite;
+        }
+
+        /* Mood Slider */
+        .mood-slider-container {
+            margin: 20px 0;
+        }
+
+        .mood-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        input[type="range"].mood-range {
+            width: 100%;
+            height: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"].mood-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ffeb3b;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 235, 59, 0.8);
+        }
+
+        input[type="range"].mood-range::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ffeb3b;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 235, 59, 0.8);
+        }
+
+        /* Countdown */
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+
+        .countdown-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .countdown-number {
+            font-size: 2.5em;
+            color: #ffeb3b;
+            font-weight: bold;
+        }
+
+        .countdown-label {
+            color: white;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        /* Professor Toggle */
+        .professor-toggle {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .toggle-btn.active {
+            background: rgba(255, 0, 0, 0.5);
+            border-color: #ff0000;
+            animation: professorGlow 1s infinite;
+        }
+
+        /* CHAT WINDOW */
+        .chat-float-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff006e, #7b2cbf);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            font-size: 1.8em;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(255, 0, 110, 0.5);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            animation: floatPulse 2s infinite;
+        }
+
+        .chat-float-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-float-btn .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff0000;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            font-size: 0.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
+        .chat-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 400px;
+            height: 600px;
+            background: rgba(20, 20, 40, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.4s ease;
+        }
+
+        .chat-window.open {
+            display: flex;
+        }
+
+        .chat-window.minimized {
+            height: 60px;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #7b2cbf, #ff006e);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .chat-header h3 {
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .chat-control-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .chat-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .chat-tab.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom-color: #ffeb3b;
+        }
+
+        .chat-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-message {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 15px;
+            color: white;
+            max-width: 85%;
+            word-wrap: break-word;
+            animation: messageSlide 0.3s ease;
+        }
+
+        .chat-message.user {
+            background: rgba(123, 44, 191, 0.5);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chat-message.bot {
+            background: rgba(255, 255, 255, 0.15);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-message .sender {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 15px;
+            align-self: flex-start;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            animation: typingBounce 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 10px 15px;
+            color: white;
+            outline: none;
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .chat-send-btn {
+            background: linear-gradient(135deg, #ff006e, #7b2cbf);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .chat-send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .spam-toggle {
+            margin: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 0, 0, 0.2);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 0, 0, 0.5);
+        }
+
+        .spam-toggle.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .spam-toggle label {
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .spam-toggle input[type="checkbox"] {
+            width: 40px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* FOMO Meter */
+        .fomo-meter {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 100, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 100, 0, 0.4);
+        }
+
+        .fomo-label {
+            color: white;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .fomo-bar {
+            height: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .fomo-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b00, #ff0000);
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        /* Distraction Popups */
+        .distraction {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            border: 2px solid #ffeb3b;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: slideIn 0.5s ease, fadeOut 0.5s ease 4.5s;
+            max-width: 300px;
+            font-size: 1.1em;
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ffeb3b;
+            z-index: 5;
+            animation: fall linear forwards;
+            pointer-events: none;
+        }
+
+        /* Emoji Rain */
+        .emoji-rain {
+            position: fixed;
+            font-size: 2em;
+            z-index: 5;
+            animation: fall linear forwards;
+            pointer-events: none;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: #ffeb3b;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes professorGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 0, 0, 0.8); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; }
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        @keyframes floatPulse {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes messageSlide {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        /* Full Width Cards */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 2em; }
+            .chat-window {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="phase-1">
+    <div class="container">
+        <header>
+            <h1>🎓 NYE Class Experience 🎉</h1>
+            <p class="subtitle">Interactive simulation: 7:15 PM - 9:15 PM (Manual Control)</p>
+        </header>
+
+        <div class="dashboard">
+            <!-- MANUAL TIME CONTROL CARD -->
+            <div class="card full-width">
+                <div class="card-title">⏰ Set Class Time (Manual)</div>
+                <div class="time-control">
+                    <div class="time-display" id="manualTimeDisplay">7:15 PM</div>
+                    <div class="time-label">Drag slider or use buttons to control time</div>
+                    <input type="range" class="time-slider" id="timeSlider" min="0" max="120" value="0" step="1">
+                    <div class="time-buttons">
+                        <button class="time-btn" onclick="adjustTime(-5)">-5 min</button>
+                        <button class="time-btn" onclick="adjustTime(-1)">-1 min</button>
+                        <button class="time-btn" onclick="adjustTime(1)">+1 min</button>
+                        <button class="time-btn" onclick="adjustTime(5)">+5 min</button>
+                    </div>
+                </div>
+                <div class="phase-indicator" id="phaseText">Loading...</div>
+            </div>
+
+            <!-- Attention Meter Card -->
+            <div class="card">
+                <div class="card-title">📊 Class Attention Meter</div>
+                <div class="attention-meter" id="attentionMeter">
+                    <div class="attention-fill" id="attentionFill">100%</div>
+                </div>
+                <div class="fomo-meter">
+                    <div class="fomo-label">😰 FOMO Level</div>
+                    <div class="fomo-bar">
+                        <div class="fomo-fill" id="fomoFill"></div>
+                    </div>
+                </div>
+                <div class="tooltip" id="attentionTooltip"></div>
+            </div>
+
+            <!-- Mood Slider Card -->
+            <div class="card">
+                <div class="card-title">🎚️ Mood Override</div>
+                <div class="mood-slider-container">
+                    <div class="mood-labels">
+                        <span>😐</span>
+                        <span>😴</span>
+                        <span>🥳</span>
+                        <span>🔥</span>
+                    </div>
+                    <input type="range" class="mood-range" id="moodSlider" min="1" max="4" value="1" step="0.1">
+                </div>
+            </div>
+
+            <!-- Countdown Card -->
+            <div class="card">
+                <div class="card-title">⏳ Countdown to Freedom</div>
+                <div class="countdown-grid">
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="classEndHours">2</div>
+                        <div class="countdown-label">Hours to 9:15</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="classEndMinutes">0</div>
+                        <div class="countdown-label">Minutes</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="midnightHours">5</div>
+                        <div class="countdown-label">Hours to Midnight</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professor Toggle -->
+            <div class="card full-width professor-toggle">
+                <button class="toggle-btn" id="professorToggle">👀 Professor is Watching</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT FLOAT BUTTON -->
+    <div class="chat-float-btn" id="chatFloatBtn" onclick="toggleChat()">
+        💬
+        <div class="notification-badge" id="chatBadge" style="display: none;">0</div>
+    </div>
+
+    <!-- CHAT WINDOW -->
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <h3>💬 In-Class Chat</h3>
+            <div class="chat-controls">
+                <button class="chat-control-btn" onclick="minimizeChat()">−</button>
+                <button class="chat-control-btn" onclick="closeChat()">×</button>
+            </div>
+        </div>
+        <div class="chat-tabs">
+            <div class="chat-tab active" onclick="switchTab('group')">Class Group Chat</div>
+            <div class="chat-tab" onclick="switchTab('private')">Private Thoughts</div>
+        </div>
+        <div class="spam-toggle" id="spamToggle">
+            <label>🔥 Spam Mode (8:50-9:10 PM only)</label>
+            <input type="checkbox" id="spamCheckbox" onchange="toggleSpamMode()">
+        </div>
+        <div class="chat-content" id="chatContent"></div>
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." onkeypress="handleChatKey(event)">
+            <button class="chat-send-btn" onclick="sendUserMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // STATE MANAGEMENT
+        // ========================================
+        let state = {
+            // MANUAL TIME: Minutes since 7:15 PM (0-120 represents 7:15-9:15 PM)
+            manualTimeMinutes: 0,
+            
+            currentPhase: 1,
+            attention: 100,
+            fomo: 0, // FOMO meter (0-100)
+            moodOverride: null,
+            professorWatching: false,
+            
+            // Chat state
+            chatOpen: false,
+            chatMinimized: false,
+            chatOpenTime: null, // Timestamp when chat was opened
+            activeTab: 'group', // 'group' or 'private'
+            unreadMessages: 0,
+            
+            // Auto-message scheduling
+            lastAutoMessageTime: 0,
+            nextAutoMessageDelay: 30000, // Dynamic delay between auto messages
+            isTyping: false,
+            
+            // Spam mode
+            spamModeEnabled: false,
+            spamBurstInProgress: false,
+            
+            // Distraction tracking
+            lastDistractionTime: Date.now(),
+            
+            // Attention modifiers
+            chatDistractionMultiplier: 1.0, // Increases when chat is open too long
+            focusBonus: false, // Temporary bonus for quick chat closure
+            focusBonusUntil: 0
+        };
+
+        // ========================================
+        // TIME CONSTANTS & PHASE DEFINITIONS
+        // ========================================
+        const CLASS_START_MINUTES = 0;   // 7:15 PM = 0 minutes
+        const CLASS_END_MINUTES = 120;   // 9:15 PM = 120 minutes
+        
+        const PHASES = [
+            { start: 0, end: 30, name: "Still Academically Responsible", emoji: "📚" },        // 7:15-7:45
+            { start: 30, end: 60, name: "Energy Dip + Glances at the Clock", emoji: "😴" },   // 7:45-8:15
+            { start: 60, end: 90, name: "NYE Thoughts Take Over", emoji: "🤔" },              // 8:15-8:45
+            { start: 90, end: 120, name: "Mentally at the Party", emoji: "🎉" }              // 8:45-9:15
+        ];
+
+        // SPAM MODE: Active window is 8:50-9:10 PM (95-115 minutes)
+        const SPAM_MODE_START = 95;  // 8:50 PM
+        const SPAM_MODE_END = 115;   // 9:10 PM
+
+        // ========================================
+        // CHAT MESSAGES BY PHASE
+        // ========================================
+        const GROUP_CHAT_MESSAGES = {
+            phase1: [
+                { sender: "Alex", text: "Anyone got the answer to #3?" },
+                { sender: "Sarah", text: "Yeah, working on it now" },
+                { sender: "Mike", text: "This case study is brutal" },
+                { sender: "Jenny", text: "Can someone explain slide 12?" },
+                { sender: "Alex", text: "Focus up everyone, this is important" }
+            ],
+            phase2: [
+                { sender: "Sarah", text: "Is anyone else getting sleepy?" },
+                { sender: "Mike", text: "Need. Coffee. Now." },
+                { sender: "Jenny", text: "How much longer is this class?" },
+                { sender: "Alex", text: "My brain stopped working 10 mins ago" },
+                { sender: "Sarah", text: "Same energy as a Monday morning" }
+            ],
+            phase3: [
+                { sender: "Mike", text: "What are we all doing after this?" },
+                { sender: "Jenny", text: "Anyone hitting Times Square?" },
+                { sender: "Sarah", text: "House party at Josh's place!" },
+                { sender: "Alex", text: "I just wanna get out of here lol" },
+                { sender: "Mike", text: "Should we pre-game somewhere first?" },
+                { sender: "Jenny", text: "YES! Meet at 9:30?" }
+            ],
+            phase4: [
+                { sender: "Sarah", text: "OMG ONLY 20 MINUTES LEFT" },
+                { sender: "Mike", text: "I CAN'T SIT STILL" },
+                { sender: "Jenny", text: "PARTY MODE ACTIVATED 🎉🎉" },
+                { sender: "Sarah", text: "Who's got champagne??" },
+                { sender: "Mike", text: "HAPPY NEW YEAR (almost) 🥳" },
+                { sender: "Jenny", text: "LET'S GOOOO" },
+                { sender: "Alex", text: "Freedom in T-minus 15 mins!" }
+            ]
+        };
+
+        const PRIVATE_THOUGHTS = {
+            phase1: [
+                "Okay, focus. This is important.",
+                "Actually paying attention right now",
+                "Taking notes like a responsible student",
+                "Why did I schedule this on NYE?",
+                "At least I'm getting credit for this"
+            ],
+            phase2: [
+                "My concentration is slipping...",
+                "Is it just me or is time moving slower?",
+                "Maybe I should check my phone",
+                "What time is it again?",
+                "This is harder than I thought"
+            ],
+            phase3: [
+                "Everyone else is having fun right now",
+                "I should've skipped this",
+                "FOMO is setting in hard",
+                "Can't stop thinking about midnight",
+                "Just 30 more minutes... I think?"
+            ],
+            phase4: [
+                "RELEASE ME FROM THIS PRISON",
+                "My soul has left my body",
+                "I'm physically here but mentally at the party",
+                "This is torture",
+                "NEW YEAR NEW ME starts in 15 minutes!"
+            ]
+        };
+
+        // Bot response templates by phase
+        const BOT_RESPONSES = {
+            phase1: [
+                "Stay focused! 📚",
+                "Good question!",
+                "Let me think about that...",
+                "Makes sense to me",
+                "Yeah, this is tough"
+            ],
+            phase2: [
+                "Hang in there...",
+                "Coffee break needed 😴",
+                "I feel you",
+                "Time is crawling",
+                "Almost halfway done"
+            ],
+            phase3: [
+                "FOMO is real",
+                "We're so close!",
+                "The countdown is on",
+                "Stay strong 💪",
+                "Think about the party after!"
+            ],
+            phase4: [
+                "FREEDOM IS NEAR 🎉",
+                "LET'S GOOO",
+                "We made it this far!",
+                "Almost there!!",
+                "HAPPY ALMOST NEW YEAR!"
+            ]
+        };
+
+        // ========================================
+        // MANUAL TIME FUNCTIONS
+        // ========================================
+        
+        /**
+         * Convert manual time (minutes since 7:15 PM) to display format
+         */
+        function formatManualTime(minutes) {
+            const totalMinutes = 7 * 60 + 15 + minutes; // 7:15 PM base + offset
+            let hours = Math.floor(totalMinutes / 60);
+            let mins = totalMinutes % 60;
+            
+            const period = hours >= 12 ? 'PM' : 'PM';
+            if (hours > 12) hours -= 12;
+            if (hours === 0) hours = 12;
+            
+            return `${hours}:${mins.toString().padStart(2, '0')} ${period}`;
+        }
+
+        /**
+         * Update the manual time display
+         */
+        function updateManualTimeDisplay() {
+            const timeStr = formatManualTime(state.manualTimeMinutes);
+            document.getElementById('manualTimeDisplay').textContent = timeStr;
+        }
+
+        /**
+         * Adjust manual time by delta minutes
+         */
+        function adjustTime(delta) {
+            state.manualTimeMinutes = Math.max(0, Math.min(120, state.manualTimeMinutes + delta));
+            document.getElementById('timeSlider').value = state.manualTimeMinutes;
+            updateManualTimeDisplay();
+        }
+
+        /**
+         * Calculate current phase based on manual time
+         */
+        function calculatePhase() {
+            for (let i = 0; i < PHASES.length; i++) {
+                if (state.manualTimeMinutes >= PHASES[i].start && state.manualTimeMinutes < PHASES[i].end) {
+                    return i + 1;
+                }
+            }
+            return 4; // Default to phase 4 if at/past end
+        }
+
+        /**
+         * Update phase display
+         */
+        function updatePhaseDisplay(phase) {
+            document.body.className = `phase-${phase}`;
+            const phaseInfo = PHASES[phase - 1];
+            document.getElementById('phaseText').textContent = 
+                `${phaseInfo.emoji} Phase ${phase}: ${phaseInfo.name}`;
+        }
+
+        /**
+         * Update countdown displays based on manual time
+         */
+        function updateCountdowns() {
+            // Time until class end (9:15 PM = 120 minutes)
+            const minsToEnd = Math.max(0, CLASS_END_MINUTES - state.manualTimeMinutes);
+            const hoursToEnd = Math.floor(minsToEnd / 60);
+            const remainingMins = minsToEnd % 60;
+            
+            document.getElementById('classEndHours').textContent = hoursToEnd;
+            document.getElementById('classEndMinutes').textContent = remainingMins;
+            
+            // Time until midnight (rough estimate: 9:15 PM to midnight = ~2h 45min = 165 min)
+            const minsToMidnight = 165 + (CLASS_END_MINUTES - state.manualTimeMinutes);
+            const hoursToMidnight = Math.floor(minsToMidnight / 60);
+            
+            document.getElementById('midnightHours').textContent = hoursToMidnight;
+        }
+
+        // ========================================
+        // ATTENTION METER LOGIC
+        // ========================================
+        
+        /**
+         * Update attention meter with various modifiers
+         * - Professor watching: boosts attention
+         * - Chat open too long: accelerates decay
+         * - Phase 4: faster decay
+         * - Focus bonus: slower decay temporarily
+         */
+        function updateAttention() {
+            const now = Date.now();
+            
+            // Check if focus bonus is active
+            if (state.focusBonus && now > state.focusBonusUntil) {
+                state.focusBonus = false;
+                state.chatDistractionMultiplier = 1.0;
+            }
+            
+            if (state.professorWatching) {
+                // Attention boost when professor watching
+                state.attention = Math.min(100, state.attention + 0.5);
+            } else {
+                // Base decay rate
+                let decayRate = 0.08;
+                
+                // Phase 4 accelerated decay
+                if (state.currentPhase === 4) {
+                    decayRate = 0.25;
+                }
+                
+                // Chat distraction penalty: if chat open > 20 seconds
+                if (state.chatOpen && !state.chatMinimized && state.chatOpenTime) {
+                    const chatOpenDuration = (now - state.chatOpenTime) / 1000; // seconds
+                    if (chatOpenDuration > 20) {
+                        state.chatDistractionMultiplier = 2.5;
+                    }
+                }
+                
+                // Apply distraction multiplier
+                decayRate *= state.chatDistractionMultiplier;
+                
+                // Focus bonus reduces decay
+                if (state.focusBonus) {
+                    decayRate *= 0.5;
+                }
+                
+                state.attention = Math.max(0, state.attention - decayRate);
+            }
+
+            // Update UI
+            const fill = document.getElementById('attentionFill');
+            fill.style.width = `${state.attention}%`;
+            fill.textContent = `${Math.round(state.attention)}%`;
+            
+            // Change color based on attention level
+            fill.classList.remove('low', 'critical');
+            if (state.attention < 50) fill.classList.add('low');
+            if (state.attention < 25) fill.classList.add('critical');
+        }
+
+        // ========================================
+        // FOMO METER LOGIC
+        // ========================================
+        
+        /**
+         * Update FOMO meter
+         * - Increases when chat is closed/minimized during phases 3-4
+         * - Decreases when chat is open
+         * - Triggers pop-ups when high
+         */
+        function updateFOMO() {
+            const inLatePhase = state.currentPhase >= 3;
+            
+            if (!state.chatOpen || state.chatMinimized) {
+                // Chat closed/minimized in late phases = FOMO builds
+                if (inLatePhase) {
+                    state.fomo = Math.min(100, state.fomo + 0.15);
+                }
+            } else {
+                // Chat open = FOMO decreases
+                state.fomo = Math.max(0, state.fomo - 0.3);
+            }
+            
+            // Update UI
+            document.getElementById('fomoFill').style.width = `${state.fomo}%`;
+            
+            // Trigger FOMO pop-up if very high
+            if (state.fomo > 80 && Math.random() < 0.01) {
+                spawnFOMOPopup();
+            }
+        }
+
+        /**
+         * Spawn a FOMO-themed distraction
+         */
+        function spawnFOMOPopup() {
+            const messages = [
+                "Everyone's planning without you 😰",
+                "You're missing all the group chat fun!",
+                "They're probably making plans right now...",
+                "What if something important was said?"
+            ];
+            
+            const distraction = document.createElement('div');
+            distraction.className = 'distraction';
+            distraction.textContent = messages[Math.floor(Math.random() * messages.length)];
+            distraction.style.top = `${Math.random() * 60 + 20}%`;
+            distraction.style.right = '20px';
+            distraction.style.borderColor = '#ff6b00';
+            document.body.appendChild(distraction);
+            
+            setTimeout(() => distraction.remove(), 5000);
+        }
+
+        // ========================================
+        // CHAT WINDOW FUNCTIONS
+        // ========================================
+        
+        /**
+         * Toggle chat window open/closed
+         */
+        function toggleChat() {
+            state.chatOpen = !state.chatOpen;
+            state.chatMinimized = false;
+            
+            const chatWindow = document.getElementById('chatWindow');
+            const badge = document.getElementById('chatBadge');
+            
+            if (state.chatOpen) {
+                chatWindow.classList.add('open');
+                chatWindow.classList.remove('minimized');
+                state.chatOpenTime = Date.now();
+                state.unreadMessages = 0;
+                badge.style.display = 'none';
+                
+                // Reset distraction multiplier
+                state.chatDistractionMultiplier = 1.0;
+            } else {
+                chatWindow.classList.remove('open');
+                state.chatOpenTime = null;
+                
+                // Quick closure bonus: if closed within 5 seconds
+                const openDuration = (Date.now() - state.chatOpenTime) / 1000;
+                if (openDuration < 5) {
+                    state.focusBonus = true;
+                    state.focusBonusUntil = Date.now() + 15000; // 15 second bonus
+                    state.chatDistractionMultiplier = 0.5;
+                }
+            }
+        }
+
+        /**
+         * Minimize chat window
+         */
+        function minimizeChat() {
+            state.chatMinimized = !state.chatMinimized;
+            const chatWindow = document.getElementById('chatWindow');
+            
+            if (state.chatMinimized) {
+                chatWindow.classList.add('minimized');
+            } else {
+                chatWindow.classList.remove('minimized');
+            }
+        }
+
+        /**
+         * Close chat window
+         */
+        function closeChat() {
+            state.chatOpen = false;
+            state.chatMinimized = false;
+            document.getElementById('chatWindow').classList.remove('open', 'minimized');
+            
+            // Check for quick closure bonus
+            if (state.chatOpenTime) {
+                const openDuration = (Date.now() - state.chatOpenTime) / 1000;
+                if (openDuration < 5) {
+                    state.focusBonus = true;
+                    state.focusBonusUntil = Date.now() + 15000;
+                    state.chatDistractionMultiplier = 0.5;
+                }
+            }
+            
+            state.chatOpenTime = null;
+        }
+
+        /**
+         * Switch between tabs
+         */
+        function switchTab(tab) {
+            state.activeTab = tab;
+            
+            // Update tab UI
+            const tabs = document.querySelectorAll('.chat-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Clear and reload messages for the active tab
+            loadChatHistory();
+        }
+
+        /**
+         * Load chat history for active tab
+         */
+        function loadChatHistory() {
+            const content = document.getElementById('chatContent');
+            content.innerHTML = ''; // Clear existing messages
+            
+            // Add welcome message
+            if (state.activeTab === 'group') {
+                addChatMessage('System', 'Welcome to the class group chat!', 'bot');
+            } else {
+                addChatMessage('You', 'Your private thoughts will appear here...', 'bot');
+            }
+        }
+
+        /**
+         * Add a message to the chat
+         */
+        function addChatMessage(sender, text, type = 'bot') {
+            const content = document.getElementById('chatContent');
+            const message = document.createElement('div');
+            message.className = `chat-message ${type}`;
+            
+            if (sender && type !== 'user') {
+                const senderDiv = document.createElement('div');
+                senderDiv.className = 'sender';
+                senderDiv.textContent = sender;
+                message.appendChild(senderDiv);
+            }
+            
+            const textDiv = document.createElement('div');
+            textDiv.textContent = text;
+            message.appendChild(textDiv);
+            
+            content.appendChild(message);
+            content.scrollTop = content.scrollHeight;
+            
+            // Update unread count if chat is closed
+            if (!state.chatOpen && type !== 'user') {
+                state.unreadMessages++;
+                const badge = document.getElementById('chatBadge');
+                badge.textContent = state.unreadMessages;
+                badge.style.display = 'flex';
+            }
+        }
+
+        /**
+         * Show typing indicator
+         */
+        function showTypingIndicator() {
+            const content = document.getElementById('chatContent');
+            const typing = document.createElement('div');
+            typing.className = 'typing-indicator';
+            typing.id = 'typingIndicator';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            content.appendChild(typing);
+            content.scrollTop = content.scrollHeight;
+        }
+
+        /**
+         * Remove typing indicator
+         */
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+
+        /**
+         * AUTO-MESSAGE SCHEDULING
+         * Messages appear automatically based on:
+         * - Current phase (determines message frequency and content)
+         * - Attention level (low attention = more messages)
+         * - Time progression (later = more chaotic)
+         */
+        function scheduleAutoMessages() {
+            const now = Date.now();
+            
+            // Skip if professor is watching
+            if (state.professorWatching) return;
+            
+            // Calculate message frequency based on phase
+            let baseDelay = 30000; // 30 seconds base
+            switch (state.currentPhase) {
+                case 1: baseDelay = 40000; break;
+                case 2: baseDelay = 25000; break;
+                case 3: baseDelay = 15000; break;
+                case 4: baseDelay = 8000; break;
+            }
+            
+            // Reduce delay if attention is low (more messages when distracted)
+            if (state.attention < 50) {
+                baseDelay *= 0.7;
+            }
+            
+            // Check if it's time for next message
+            if (now - state.lastAutoMessageTime > baseDelay && !state.isTyping) {
+                sendAutoMessage();
+                state.lastAutoMessageTime = now;
+            }
+        }
+
+        /**
+         * Send an automatic message from the group chat
+         */
+        function sendAutoMessage() {
+            state.isTyping = true;
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                
+                // Get message based on active tab and phase
+                let messagePool;
+                if (state.activeTab === 'group') {
+                    messagePool = GROUP_CHAT_MESSAGES[`phase${state.currentPhase}`];
+                } else {
+                    messagePool = PRIVATE_THOUGHTS[`phase${state.currentPhase}`];
+                }
+                
+                const message = messagePool[Math.floor(Math.random() * messagePool.length)];
+                
+                if (state.activeTab === 'group') {
+                    addChatMessage(message.sender, message.text, 'bot');
+                } else {
+                    addChatMessage(null, message, 'bot');
+                }
+                
+                state.isTyping = false;
+                
+                // Auto-open chat if attention is very low and in late phase
+                if (state.attention < 30 && state.currentPhase >= 3 && !state.chatOpen) {
+                    toggleChat();
+                }
+            }, 1000 + Math.random() * 2000); // Random typing delay
+        }
+
+        /**
+         * SPAM MODE
+         * When enabled during 8:50-9:10 PM window, sends bursts of messages
+         */
+        function toggleSpamMode() {
+            state.spamModeEnabled = document.getElementById('spamCheckbox').checked;
+        }
+
+        /**
+         * Execute spam burst (20 messages in ~10 seconds)
+         */
+        function executeSpamBurst() {
+            if (state.spamBurstInProgress || !state.spamModeEnabled) return;
+            if (state.attention > 30) return; // Only spam when attention is low
+            
+            state.spamBurstInProgress = true;
+            
+            const spamMessages = [
+                { sender: "Sarah", text: "OMG OMG OMG" },
+                { sender: "Mike", text: "YESSSS" },
+                { sender: "Jenny", text: "🎉🎉🎉" },
+                { sender: "Alex", text: "LET'S GOOOOO" },
+                { sender: "Sarah", text: "WHO'S READY??" },
+                { sender: "Mike", text: "PARTY TIME" },
+                { sender: "Jenny", text: "I CAN'T EVEN" },
+                { sender: "Alex", text: "THIS IS IT" },
+                { sender: "Sarah", text: "FREEDOM!!!" },
+                { sender: "Mike", text: "🥳🥳🥳" },
+                { sender: "Jenny", text: "ALMOST THERE" },
+                { sender: "Alex", text: "10 MORE MINUTES" },
+                { sender: "Sarah", text: "I'M DYING" },
+                { sender: "Mike", text: "HANG ON" },
+                { sender: "Jenny", text: "WE GOT THIS" },
+                { sender: "Alex", text: "NYE NYE NYE" },
+                { sender: "Sarah", text: "🍾🍾🍾" },
+                { sender: "Mike", text: "SEE YOU ALL SOON" },
+                { sender: "Jenny", text: "HAPPY NEW YEAR" },
+                { sender: "Alex", text: "LET'S CELEBRATE!" }
+            ];
+            
+            let delay = 0;
+            spamMessages.forEach((msg, index) => {
+                setTimeout(() => {
+                    addChatMessage(msg.sender, msg.text, 'bot');
+                    
+                    if (index === spamMessages.length - 1) {
+                        state.spamBurstInProgress = false;
+                    }
+                }, delay);
+                delay += 500; // 500ms between messages
+            });
+        }
+
+        /**
+         * Handle user sending a message
+         */
+        function sendUserMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            // Add user message
+            addChatMessage(null, text, 'user');
+            input.value = '';
+            
+            // Bot responds after short delay
+            setTimeout(() => {
+                showTypingIndicator();
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    const responses = BOT_RESPONSES[`phase${state.currentPhase}`];
+                    const response = responses[Math.floor(Math.random() * responses.length)];
+                    addChatMessage('ClassBot', response, 'bot');
+                }, 1000 + Math.random() * 1000);
+            }, 500);
+        }
+
+        /**
+         * Handle Enter key in chat input
+         */
+        function handleChatKey(event) {
+            if (event.key === 'Enter') {
+                sendUserMessage();
+            }
+        }
+
+        // ========================================
+        // VISUAL EFFECTS
+        // ========================================
+        
+        function spawnConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = `${Math.random() * 100}%`;
+            confetti.style.top = '-10px';
+            confetti.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            confetti.style.animationDuration = `${3 + Math.random() * 2}s`;
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 5000);
+        }
+
+        function spawnEmoji() {
+            const emojis = ['🎉', '🥳', '🍾', '✨', '🎊', '🎈'];
+            const emoji = document.createElement('div');
+            emoji.className = 'emoji-rain';
+            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            emoji.style.left = `${Math.random() * 100}%`;
+            emoji.style.top = '-50px';
+            emoji.style.animationDuration = `${4 + Math.random() * 3}s`;
+            document.body.appendChild(emoji);
+            
+            setTimeout(() => emoji.remove(), 7000);
+        }
+
+        // ========================================
+        // MAIN UPDATE LOOP
+        // ========================================
+        
+        function update() {
+            // Calculate phase based on manual time
+            const newPhase = calculatePhase();
+            if (newPhase !== state.currentPhase) {
+                state.currentPhase = newPhase;
+                updatePhaseDisplay(state.currentPhase);
+            }
+            
+            // Update all meters and displays
+            updateAttention();
+            updateFOMO();
+            updateCountdowns();
+            
+            // Schedule auto-messages
+            scheduleAutoMessages();
+            
+            // Check spam mode availability
+            const spamToggle = document.getElementById('spamToggle');
+            const inSpamWindow = state.manualTimeMinutes >= SPAM_MODE_START && 
+                                state.manualTimeMinutes <= SPAM_MODE_END;
+            
+            if (inSpamWindow) {
+                spamToggle.classList.remove('disabled');
+                
+                // Trigger spam burst if enabled and conditions met
+                if (state.spamModeEnabled && Math.random() < 0.02) {
+                    executeSpamBurst();
+                }
+            } else {
+                spamToggle.classList.add('disabled');
+                state.spamModeEnabled = false;
+                document.getElementById('spamCheckbox').checked = false;
+            }
+            
+            // Spawn visual effects based on phase
+            if (state.currentPhase >= 3 && Math.random() < 0.02) spawnConfetti();
+            if (state.currentPhase === 4 && Math.random() < 0.05) spawnEmoji();
+        }
+
+        // ========================================
+        // EVENT LISTENERS
+        // ========================================
+        
+        // Time slider
+        document.getElementById('timeSlider').addEventListener('input', (e) => {
+            state.manualTimeMinutes = parseInt(e.target.value);
+            updateManualTimeDisplay();
+        });
+
+        // Mood slider
+        document.getElementById('moodSlider').addEventListener('input', (e) => {
+            state.moodOverride = true;
+            const phase = Math.ceil(parseFloat(e.target.value));
+            state.currentPhase = phase;
+            updatePhaseDisplay(phase);
+        });
+
+        // Professor toggle
+        document.getElementById('professorToggle').addEventListener('click', (e) => {
+            state.professorWatching = !state.professorWatching;
+            e.target.classList.toggle('active');
+            e.target.textContent = state.professorWatching ? 
+                '👁️ Professor IS Watching!' : 
+                '👀 Professor is Watching';
+        });
+
+        // Attention meter tooltip
+        const attentionMeter = document.getElementById('attentionMeter');
+        const tooltip = document.getElementById('attentionTooltip');
+        const TOOLTIPS = [
+            "Spoiler: It only goes down from here",
+            "Like your motivation, but quantified",
+            "This is fine. Everything is fine.",
+            "At least you showed up?",
+            "The professor thinks you're listening",
+            "Blink twice if you need help",
+            "Your brain left 20 minutes ago"
+        ];
+        
+        attentionMeter.addEventListener('mouseenter', (e) => {
+            tooltip.textContent = TOOLTIPS[Math.floor(Math.random() * TOOLTIPS.length)];
+            tooltip.style.opacity = '1';
+            tooltip.style.top = `${e.offsetY - 40}px`;
+            tooltip.style.left = `${e.offsetX}px`;
+        });
+        
+        attentionMeter.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = '0';
+        });
+
+        // ========================================
+        // INITIALIZATION
+        // ========================================
+        
+        updateManualTimeDisplay();
+        updatePhaseDisplay(1);
+        loadChatHistory();
+        
+        setInterval(update, 100); // Update 10x per second
+        update(); // Initial call
+    </script>
+</body>
+</html>
